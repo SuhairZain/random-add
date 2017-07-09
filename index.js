@@ -1,39 +1,33 @@
-const slow1 = (...params) => {
-    console.log('CALLED 1');
-    return params.reduce((a, b) => a + b) + 1;
+const slow1 = (a, b) => {
+  console.log("CALLED 1");
+  return a + b + 1;
 };
 
-const slow2 = (...params) => {
-    console.log('CALLED 2');
-    return params.reduce((a, b) => a + b) + 2;
+const slow2 = (a, b, c) => {
+  console.log("CALLED 2");
+  return a + b + c + 2;
 };
 
-const slow3 = (...params) => {
-    console.log('CALLED 3');
-    return params.reduce((a, b) => a + b) + 3;
-};
-
-const slow4 = (...params) => {
-    console.log('CALLED 4');
-    return params.reduce((a, b) => a + b) + 4;
-};
-
-
-const resultAcc = {
-};
-const mySlow = (...funcs) => (...params) => {
-    const key = `a${params.sort().map((a) => `${a}-`).join('')}`;
+const cachedFunc = func => {
+  const resultAcc = {};
+  return (...params) => {
+    const key = `a${params.sort().map(a => `${a}-`).join("")}`;
 
     if (resultAcc[key] === undefined) {
-        resultAcc[key] = funcs.reduce((acc, curr) => {
-            return () => curr(acc(...params), ...params);
-        })();
+      resultAcc[key] = func(...params);
     }
     return resultAcc[key];
+  };
 };
 
+const myCachedSlow1 = cachedFunc(slow1);
+console.log(myCachedSlow1(1, 2));
+console.log(myCachedSlow1(1, 2));
+console.log(myCachedSlow1(0, 0));
+console.log(myCachedSlow1(0, 0));
 
-console.log(mySlow(slow1, slow2, slow3, slow4)(1, 2));
-console.log(mySlow(slow1, slow2, slow4, slow3)(2, 1));
-console.log(mySlow(slow1, slow2, slow3, slow4)(1, 2, 3));
-console.log(mySlow(slow1, slow2, slow3, slow4)(3, 1, 2));
+const myCachedSlow2 = cachedFunc(slow2);
+console.log(myCachedSlow2(1, 0, 2));
+console.log(myCachedSlow2(0, 1, 2));
+console.log(myCachedSlow2(0, 0, 1));
+console.log(myCachedSlow2(1, 0, 0));
